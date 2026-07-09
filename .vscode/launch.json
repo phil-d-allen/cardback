@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/CardBack/bin/Debug/net9.0-windows/CardBack.dll",
+            "program": "${workspaceFolder}/CardBack/bin/Debug/net10.0-windows/CardBack.dll",
             "args": [],
             "cwd": "${workspaceFolder}/CardBack",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
