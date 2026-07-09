@@ -39,15 +39,15 @@
 
             <!-- Height 1 -->
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Height"/>
-            <TextBox Grid.Row="0" Grid.Column="1"/>
+            <TextBox Grid.Row="1" Grid.Column="1" />
 
             <!-- Width 2-->
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Width"/>
-            <TextBox Grid.Row="0" Grid.Column="1"/>
+            <TextBox Grid.Row="2" Grid.Column="1" />
 
             <!-- Corner rounding 3-->
-            <TextBlock Grid.Row="3" Grid.Column="0" Text="Rounding"/>
-            <TextBox Grid.Row="0" Grid.Column="1"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Corner Rounding"/>
+            <TextBox Grid.Row="3" Grid.Column="1" />
 
             <!-- Pattern choices 4 -->
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Pattern"/>
