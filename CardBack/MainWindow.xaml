@@ -5,8 +5,68 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CardBack"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Card Back Designer" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+        </Grid.RowDefinitions>
 
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Name 0 -->
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Name"/>
+            <TextBox Grid.Row="0" Grid.Column="1"/>
+
+            <!-- Height 1 -->
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Height"/>
+            <TextBox Grid.Row="0" Grid.Column="1"/>
+
+            <!-- Width 2-->
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Width"/>
+            <TextBox Grid.Row="0" Grid.Column="1"/>
+
+            <!-- Corner rounding 3-->
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Rounding"/>
+            <TextBox Grid.Row="0" Grid.Column="1"/>
+
+            <!-- Pattern choices 4 -->
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Pattern"/>
+            <ComboBox  Grid.Row="4" Grid.Column="1">
+                <ComboBox.Items>
+                    <ComboBoxItem>Red</ComboBoxItem>
+                    <ComboBoxItem>Blue</ComboBoxItem>
+                    <ComboBoxItem>Yellow</ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
+
+            <!-- Save 5 -->
+            <Button Grid.Row="5" Grid.Column="1" Content="Save"/>
+        </Grid>
+
+
+        <Grid Grid.Row="0" Grid.Column="1">
+            <Label Content="Preview" />
+            
+        </Grid>
     </Grid>
 </Window>
