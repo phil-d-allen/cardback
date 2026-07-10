@@ -35,19 +35,19 @@
 
             <!-- Name 0 -->
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Name"/>
-            <TextBox Grid.Row="0" Grid.Column="1"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name, Mode=TwoWay}"/>
 
             <!-- Height 1 -->
             <TextBlock Grid.Row="1" Grid.Column="0" Text="Height"/>
-            <TextBox Grid.Row="1" Grid.Column="1" />
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Height, Mode=TwoWay}"/>
 
             <!-- Width 2-->
             <TextBlock Grid.Row="2" Grid.Column="0" Text="Width"/>
-            <TextBox Grid.Row="2" Grid.Column="1" />
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Width, Mode=TwoWay}"/>
 
             <!-- Corner rounding 3-->
             <TextBlock Grid.Row="3" Grid.Column="0" Text="Corner Rounding"/>
-            <TextBox Grid.Row="3" Grid.Column="1" />
+            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CornerRounding, Mode=TwoWay}"/>
 
             <!-- Pattern choices 4 -->
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Pattern"/>
