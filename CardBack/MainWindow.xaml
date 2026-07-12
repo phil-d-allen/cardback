@@ -65,8 +65,16 @@
 
 
         <Grid Grid.Row="0" Grid.Column="1">
-            <Label Content="Preview" />
-            
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="25" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Content="Preview" Grid.Row="0"/>
+            <Image Grid.Row="1" Width="{Binding Width, Mode=OneWay}" Height="{Binding Height, Mode=OneWay}" >
+                <Image.Source>
+                    <DrawingImage Drawing="{Binding CurrentImage, Mode=OneWay}" />
+                </Image.Source>
+            </Image>
         </Grid>
     </Grid>
 </Window>
