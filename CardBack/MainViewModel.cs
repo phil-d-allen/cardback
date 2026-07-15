@@ -5,12 +5,82 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 
-internal sealed class MainViewModel : INotifyPropertyChanged
+#pragma warning disable CA1515 // Consider making public types internal
+public sealed class MainViewModel : INotifyPropertyChanged
+#pragma warning restore CA1515 // Consider making public types internal
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public MainViewModel()
     {
+        MainColor = Colors.Aquamarine;
+        AuxiliaryColor = Colors.Black;
+        Patterns.Add(new PatternChoice()
+        {
+            Name = "Crosshatched",
+            Algorithm = DrawCrosshatched,
+        });
+
+        Patterns.Add(new PatternChoice()
+        {
+            Name = "Grid",
+            Algorithm = DrawGrid,
+        });
+
+        Patterns.Add(new PatternChoice()
+        {
+            Name = "Diamonds",
+            Algorithm = DrawDiamond,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Aquamarine",
+            Color = Colors.Aquamarine,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Antique White",
+            Color = Colors.AntiqueWhite,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Black",
+            Color = Colors.Black,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Blue",
+            Color = Colors.Blue,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Green",
+            Color = Colors.Green,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Purple",
+            Color = Colors.Purple,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Red",
+            Color = Colors.Red,
+        });
+
+        ColorChoices.Add(new ColorChoice()
+        {
+            Name = "Yellow",
+            Color = Colors.Yellow,
+        });
+
         PropertyChanged += SelfPropertyChanged;
     }
 
@@ -44,6 +114,46 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         set => SetProperty(ref field, value);
     }
 
+#pragma warning disable CA1002 // Do not expose generic lists
+    public List<PatternChoice> Patterns
+#pragma warning restore CA1002 // Do not expose generic lists
+    {
+        get => field;
+    } = new List<PatternChoice>();
+
+    public Action<MainViewModel, int, GeometryGroup>? SelectedAlgorithm
+    {
+        get => field;
+        set => SetProperty(ref field, value);
+    }
+
+#pragma warning disable CA1002 // Do not expose generic lists
+    public List<ColorChoice> ColorChoices
+#pragma warning restore CA1002 // Do not expose generic lists
+    {
+        get => field;
+    } = new List<ColorChoice>();
+
+    public Color MainColor
+    {
+        get => field;
+        set => SetProperty(ref field, value);
+    }
+
+    public Color AuxiliaryColor
+    {
+        get => field;
+        set => SetProperty(ref field, value);
+    }
+
+    private bool ArePropertiesConsistent
+    {
+        get
+        {
+            return !(Width is 0 || Height is 0 || CornerRounding > Width || CornerRounding > Height || SelectedAlgorithm is null);
+        }
+    }
+
     private void SelfPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is not nameof(CurrentImage))
@@ -58,26 +168,26 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     /// </summary>
     private void GenerateImage()
     {
-        if (Width is 0 || Height is 0 || CornerRounding > Width || CornerRounding > Height)
+        if (!ArePropertiesConsistent)
         {
             return;
         }
 
-        const int diamondThickness = 8;
+        const int patternHeight = 8;
 
         GeometryDrawing lines = new GeometryDrawing();
-        lines.Pen = new Pen(Brushes.Aquamarine, (diamondThickness - 2) / 2);
+        lines.Pen = new Pen(new SolidColorBrush(MainColor), (patternHeight - 2) / 2);
 
         GeometryGroup lineGroup = new GeometryGroup();
 
-        DrawCrosshatched(diamondThickness, lineGroup);
+        SelectedAlgorithm(this, patternHeight, lineGroup);
 
         lines.Geometry = lineGroup;
 
         GeometryDrawing background = new GeometryDrawing();
         GeometryGroup backgroundGroup = new GeometryGroup();
         backgroundGroup.Children.Add(new RectangleGeometry(new Rect(0, 0, Width, Height)));
-        background.Brush = Brushes.Black;
+        background.Brush = new SolidColorBrush(AuxiliaryColor);
         background.Geometry = backgroundGroup;
 
         DrawingGroup image = new DrawingGroup();
@@ -114,48 +224,173 @@ internal sealed class MainViewModel : INotifyPropertyChanged
             image.ClipGeometry = cornersGroup;
         }
 
-        // NEXT: Replace with multiple drawing algorithm, which might require adding new controls/view model properties
         CurrentImage = image;
     }
 
-    private void DrawCrosshatched(int diamondThickness, GeometryGroup lineGroup)
+    private static void DrawCrosshatched(MainViewModel self, int diamondThickness, GeometryGroup lineGroup)
     {
-        // Lines from NW to SE, starting in NW and doing glide transformations to the E.
-        for (int idX = 0; idX < Width; idX += diamondThickness)
+        int ContainXInFigure(int x)
         {
-            int bottomX = int.Min(Width, Height + idX);
+            return Math.Min(self.Width, Math.Max(0, x));
+        }
 
-            int bottomY = int.Min(Height, Width - idX);
+        int ContainYInFigure(int y)
+        {
+            return Math.Min(self.Height, Math.Max(0, y));
+        }
+
+        // Lines from NW to SE, starting in NW and doing glide transformations to the E.
+        for (int idX = 0; idX < self.Width; idX += diamondThickness)
+        {
+            int bottomX = ContainXInFigure(self.Height + idX);
+            int bottomY = ContainYInFigure(self.Width - idX);
+
             lineGroup.Children.Add(new LineGeometry(new Point(idX, 0), new Point(bottomX, bottomY)));
         }
 
         // Lines from NW to SE, starting just south of NW and doing glide transformations to the S
-        for (int idY = diamondThickness; idY < Height; idY += diamondThickness)
+        for (int idY = diamondThickness; idY < self.Height; idY += diamondThickness)
         {
-            int bottomX = int.Min(Width, Height - idY);
+            int bottomX = ContainXInFigure(self.Height - idY);
+            int bottomY = ContainYInFigure(self.Width + idY);
 
-            int bottomY = int.Min(Height, Width + idY);
             lineGroup.Children.Add(new LineGeometry(new Point(0, idY), new Point(bottomX, bottomY)));
         }
 
         // Lines from NE to SW, starting in NW and doing glide transformations to the E.
-        for (int idX = Width; idX >= 0; idX -= diamondThickness)
+        for (int idX = self.Width; idX >= 0; idX -= diamondThickness)
         {
-            int bottomX = int.Max(0, idX - Height);
+            int bottomX = ContainXInFigure(idX - self.Height);
+            int bottomY = ContainYInFigure(idX);
 
-            int bottomY = int.Min(Height, idX);
             lineGroup.Children.Add(new LineGeometry(new Point(idX, 0), new Point(bottomX, bottomY)));
         }
 
         // Lines from NE to SW, starting just south of NE and doing glide transformations to the S
-        for (int idY = diamondThickness; idY < Height; idY += diamondThickness)
+        for (int idY = diamondThickness; idY < self.Height; idY += diamondThickness)
         {
-            int bottomX = int.Max(0, (Width - Height) + idY);
+            int bottomX = ContainXInFigure(self.Width - self.Height + idY);
+            int bottomY = ContainYInFigure(self.Width + idY);
 
-            int bottomY = int.Min(Height, Width + idY);
-            lineGroup.Children.Add(new LineGeometry(new Point(Width, idY), new Point(bottomX, bottomY)));
+            lineGroup.Children.Add(new LineGeometry(new Point(self.Width, idY), new Point(bottomX, bottomY)));
         }
     }
+
+    private static void DrawGrid(MainViewModel self, int patternHeight, GeometryGroup lineGroup)
+    {
+        for (int idX = patternHeight / 2; idX < self.Width; idX += patternHeight)
+        {
+            lineGroup.Children.Add(new LineGeometry(new Point(idX, 0), new Point(idX, self.Height)));
+        }
+
+        for (int idY = patternHeight / 2; idY < self.Height; idY += patternHeight)
+        {
+            lineGroup.Children.Add(new LineGeometry(new Point(0, idY), new Point(self.Width, idY)));
+        }
+    }
+
+    private static void DrawDiamond(MainViewModel self, int patternHeight, GeometryGroup lineGroup)
+    {
+        // There are four quadrants of the card; for diamond style, each quadrant has lines running
+        // perpendicular to the identity of the quadrant... e.g., the NW quadrant is lines running from
+        // the SW to the NE.  These lines are all parallel within a quadrant, and unlike croasshatched
+        // the slope of the line is the aspect ratio of the cardback.
+        // We use the shorter side of the aspect ratio to determine how many total lines there are.
+        // For consistency, we will draw lines starting at the center of the figure and leading
+        // towards the corners.
+
+        // NW quadrant: Lines from SW to NE, etc.
+        int shorterSideLength = Math.Min(self.Height, self.Width);
+        int numberOfLinesOnAxis = shorterSideLength / patternHeight / 2;
+        int numberOfLinesTotal = numberOfLinesOnAxis * 2;
+
+        // NW quadrant is from 0...midX and 0...midY
+        //             / topRight
+        //            /
+        //   0,0_____/___midX__________
+        //      |   /     |
+        //      |  /      |
+        //      | /       |
+        //      |/        |
+        //     /|         |
+        //    / |         |
+        // bl/ midY-------+---
+        static (Point adjustedBottomLeft, Point adjustedTopRight) BoundPointsInNWQuadrant(Point bottomLeft, Point topRight)
+        {
+            double dx = topRight.X;
+            double dy = bottomLeft.Y;
+            double slope = dy / dx;
+            return (AdjustBottomLeft(bottomLeft, slope),
+                    AdjustTopRight(topRight, slope));
+
+            static Point AdjustTopRight(Point topRight, double slope)
+            {
+                if (topRight.Y < 0)
+                {
+                    // we know topRight.Y is negative; use that.
+                    return new Point(topRight.X + (topRight.Y / slope), 0);
+                }
+                else
+                {
+                    return topRight;
+                }
+            }
+
+            static Point AdjustBottomLeft(Point bottomLeft, double slope)
+            {
+                if (bottomLeft.X < 0)
+                {
+                    // we know bottomLeft.X is negative; use that.
+                    return new Point(0, bottomLeft.Y + (bottomLeft.X * slope));
+                }
+                else
+                {
+                    return bottomLeft;
+                }
+            }
+        }
+
+        int midX = self.Width / 2;
+        int midY = self.Height / 2;
+
+        for (int idx = 0; idx < numberOfLinesTotal; ++idx)
+        {
+            int centerDX = (midX / numberOfLinesOnAxis) * idx + (patternHeight / 2);
+            int centerDY = (midY / numberOfLinesOnAxis) * idx + (patternHeight / 2);
+
+            (Point nwBottomLeft, Point nwTopRight) = BoundPointsInNWQuadrant(
+                new Point(midX - centerDX, midY),
+                new Point(midX, midY - centerDY));
+
+
+            // in the NW quadrant
+            lineGroup.Children.Add(new LineGeometry(
+                nwBottomLeft,
+                nwTopRight));
+
+            // Flip the nw to ne; reflect nwBottomLeft on the X-axis by
+            // subtracting midX, multiply by negative 1, and then adding midX.
+            // reflect nwTopRight the same way.
+
+            // NE
+            lineGroup.Children.Add(new LineGeometry(
+                new Point(((nwBottomLeft.X - midX) * -1) + midX, nwBottomLeft.Y),
+                new Point(((nwTopRight.X - midX) * -1) + midX, nwTopRight.Y)));
+
+            // Similar to nw=>ne flip, instead keep X coordinates the same and reflect Y coordinates
+            // SW
+            lineGroup.Children.Add(new LineGeometry(
+                new Point(nwBottomLeft.X, ((nwBottomLeft.Y - midY) * -1) + midY),
+                new Point(nwTopRight.X, ((nwTopRight.Y - midY) * -1) + midY)));
+
+            // For NW=>SE flip, reflect both X and Y axis
+            // SE
+            lineGroup.Children.Add(new LineGeometry(
+                new Point(((nwBottomLeft.X - midX) * -1) + midX, ((nwBottomLeft.Y - midY) * -1) + midY),
+                new Point(((nwTopRight.X - midX) * -1) + midX, ((nwTopRight.Y - midY) * -1) + midY)));
+        }
+    }
+
 
     // Direction names are correct for the top left corner, everything else is just a rotation of it.
     //         N     NE
@@ -208,4 +443,24 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         // A more advanced implementation might want to send this to the UI thread.
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(memberName));
     }
+}
+
+#pragma warning disable CA1515 // Consider making public types internal
+public sealed class PatternChoice
+#pragma warning restore CA1515 // Consider making public types internal
+{
+    public required string Name { get; init; }
+
+    public required Action<MainViewModel, int, GeometryGroup> Algorithm { get; init; }
+
+}
+
+#pragma warning disable CA1515 // Consider making public types internal
+public sealed class ColorChoice
+#pragma warning restore CA1515 // Consider making public types internal
+{
+    public required string Name { get; init; }
+
+    public required Color Color { get; init; }
+
 }

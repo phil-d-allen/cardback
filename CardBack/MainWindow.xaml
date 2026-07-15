@@ -26,6 +26,8 @@
                 <RowDefinition />
                 <RowDefinition />
                 <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
             </Grid.RowDefinitions>
             
             <Grid.ColumnDefinitions>
@@ -51,16 +53,33 @@
 
             <!-- Pattern choices 4 -->
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Pattern"/>
-            <ComboBox  Grid.Row="4" Grid.Column="1">
-                <ComboBox.Items>
-                    <ComboBoxItem>Red</ComboBoxItem>
-                    <ComboBoxItem>Blue</ComboBoxItem>
-                    <ComboBoxItem>Yellow</ComboBoxItem>
-                </ComboBox.Items>
-            </ComboBox>
+            <ComboBox  Grid.Row="4" Grid.Column="1"
+                ItemsSource="{Binding Patterns, Mode=OneWay}"
+                SelectedValue="{Binding SelectedAlgorithm, Mode=TwoWay}"
+                DisplayMemberPath="Name"
+                SelectedValuePath="Algorithm"
+                />
 
-            <!-- Save 5 -->
-            <Button Grid.Row="5" Grid.Column="1" Content="Save"/>
+            <!-- Main color 5 -->
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Main Color" />
+            <ComboBox  Grid.Row="5" Grid.Column="1"
+                ItemsSource="{Binding ColorChoices, Mode=OneWay}"
+                SelectedValue="{Binding MainColor, Mode=TwoWay}"
+                DisplayMemberPath="Name"
+                SelectedValuePath="Color"
+                />
+
+            <!-- Auxiliary (background) color 6 -->
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Auxiliary Color" />
+            <ComboBox  Grid.Row="6" Grid.Column="1"
+                ItemsSource="{Binding ColorChoices, Mode=OneWay}"
+                SelectedValue="{Binding AuxiliaryColor, Mode=TwoWay}"
+                DisplayMemberPath="Name"
+                SelectedValuePath="Color"
+                />
+
+            <!-- Save 7 -->
+            <Button Grid.Row="7" Grid.Column="1" Content="Save"/>
         </Grid>
 
 
