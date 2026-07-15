@@ -79,7 +79,10 @@
                 />
 
             <!-- Save 7 -->
-            <Button Grid.Row="7" Grid.Column="1" Content="Save"/>
+            <Button Grid.Row="7" Grid.Column="1"
+                Content="Save" 
+                Command="{Binding SaveCommand, Mode=OneWay}"
+                IsEnabled="{Binding IsSaveEnabled, Mode=OneWay}" />
         </Grid>
 
 

@@ -1,9 +1,11 @@
-namespace CardBack;
-
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
+
+namespace CardBack;
 
 #pragma warning disable CA1515 // Consider making public types internal
 public sealed class MainViewModel : INotifyPropertyChanged
@@ -81,6 +83,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Color = Colors.Yellow,
         });
 
+        SaveCommand = ClickCommand.From(ClickSave);
+
         PropertyChanged += SelfPropertyChanged;
     }
 
@@ -146,11 +150,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set => SetProperty(ref field, value);
     }
 
+    public ICommand SaveCommand
+    {
+        get => field;
+        set => SetProperty(ref field, value);
+    }
+
+    [MemberNotNullWhen(true, nameof(SelectedAlgorithm))]
     private bool ArePropertiesConsistent
     {
         get
         {
-            return !(Width is 0 || Height is 0 || CornerRounding > Width || CornerRounding > Height || SelectedAlgorithm is null);
+            return !(Width is 0 || Height is 0 || CornerRounding > Width / 2 || CornerRounding > Height / 2 || SelectedAlgorithm is null);
         }
     }
 
@@ -159,6 +170,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (e.PropertyName is not nameof(CurrentImage))
         {
             GenerateImage();
+        }
+        switch (e.PropertyName)
+        {
+            case nameof(Width):
+            case nameof(Height):
+            case nameof(CornerRounding):
+            case nameof(SelectedAlgorithm):
+            case nameof(AuxiliaryColor):
+            case nameof(MainColor):
+                GenerateImage();
+                goto case nameof(Name);
+            case nameof(Name):
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSaveEnabled)));
+                break;
+            default:
+                break;
         }
     }
 
@@ -442,6 +469,25 @@ public sealed class MainViewModel : INotifyPropertyChanged
         toSet = newValue;
         // A more advanced implementation might want to send this to the UI thread.
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(memberName));
+    }
+
+    [MemberNotNullWhen(true, nameof(Name))]
+    [MemberNotNullWhen(true, nameof(CurrentImage))]
+    public bool IsSaveEnabled
+    {
+        get => ArePropertiesConsistent
+            && CurrentImage is not null
+            && !string.IsNullOrEmpty(Name);
+    }
+
+    private void ClickSave(object? obj)
+    {
+        if (!IsSaveEnabled)
+        {
+            return;
+        }
+
+        ImagePersist.PersistImage(CurrentImage, Width, Height, Name);
     }
 }
 
